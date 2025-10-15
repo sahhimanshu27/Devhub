@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import {
   Search,
   ExternalLink,
@@ -9,6 +11,17 @@ import {
   TrendingUp,
   Clock,
   Filter,
+  RefreshCw,
+  Sparkles,
+  Code2,
+  Zap,
+  User,
+  Settings,
+  Bell,
+  LogOut,
+  Menu,
+  BarChart3,
+  Shield,
 } from "lucide-react";
 
 const platformColors = {
@@ -122,6 +135,32 @@ const posts = [
 
 const Header = () => {
   const platforms = ["all", ...new Set(posts.map((p) => p.platform))];
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Mock user data
+  const user = {
+    name: "Alex Developer",
+    email: "alex@devhub.com",
+    avatar: "AD",
+    role: "Pro User",
+  };
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: { target: any }) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target)
+      ) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div>
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -134,10 +173,143 @@ const Header = () => {
               Curated coding content from across the web
             </p>
           </div>
+
           <div className="flex gap-2">
             <button className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all backdrop-blur-sm">
               <Bookmark className="w-5 h-5" />
             </button>
+            {/*  */}
+            {/* User Profile Button */}
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all"
+              >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                  {user.avatar}
+                </div>
+                <div className="hidden md:block text-left">
+                  <div className="text-sm font-medium text-white">
+                    {user.name}
+                  </div>
+                  <div className="text-xs text-gray-400">{user.role}</div>
+                </div>
+                <Menu className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  {/* User Info Header */}
+                  <div className="px-4 py-4 border-b border-white/10 bg-gradient-to-r from-purple-600/20 to-pink-600/20">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
+                        {user.avatar}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white font-semibold truncate">
+                          {user.name}
+                        </div>
+                        <div className="text-gray-400 text-sm truncate">
+                          {user.email}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="py-2">
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        alert("Profile clicked");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <User className="w-5 h-5 text-purple-400" />
+                      <span className="font-medium">My Profile</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        alert("Bookmarks clicked");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <Bookmark className="w-5 h-5 text-blue-400" />
+                      <span className="font-medium">Bookmarks</span>
+                      <span className="ml-auto text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">
+                        12
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        alert("Notifications clicked");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <Bell className="w-5 h-5 text-yellow-400" />
+                      <span className="font-medium">Notifications</span>
+                      <span className="ml-auto text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">
+                        3
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        alert("Analytics clicked");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <BarChart3 className="w-5 h-5 text-green-400" />
+                      <span className="font-medium">Analytics</span>
+                    </button>
+                  </div>
+
+                  <div className="border-t border-white/10 py-2">
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        alert("Settings clicked");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <Settings className="w-5 h-5 text-gray-400" />
+                      <span className="font-medium">Settings</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        alert("Help clicked");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <Shield className="w-5 h-5 text-gray-400" />
+                      <span className="font-medium">Help & Support</span>
+                    </button>
+                  </div>
+
+                  <div className="border-t border-white/10 py-2">
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        alert("Logout clicked");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Log Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/*  */}
+            </div>
           </div>
         </div>
 
@@ -178,7 +350,6 @@ const Header = () => {
           </select>
         </div>
       </div>
-      //{" "}
     </div>
   );
 };
