@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  profileImage  String?
+  emailVerified Boolean   @default(false)
+  verificationToken String?
+  resetToken    String?
+  resetTokenExpiry DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  bookmarks     Bookmark[]
+  activities    UserActivity[]
+  sessions      Session[]
+  
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  platform    String
+  author      String
+  authorUrl   String?
+  title       String
+  content     String   @db.Text
+  url         String   @unique
+  thumbnail   String?
+  tags        String[]
+  likes       Int      @default(0)
+  comments    Int      @default(0)
+  shares      Int      @default(0)
+  publishedAt DateTime
+  scrapedAt   DateTime @default(now())
+  
+  // Relations
+  bookmarks   Bookmark[]
+  
+  @@index([platform])
+  @@index([publishedAt])
+  @@index([scrapedAt])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model UserActivity {
+  id          String   @id @default(cuid())
+  userId      String
+  activityType String  // 'visit', 'search', 'click'
+  platform    String?  // 'reddit', 'twitter', 'github', etc.
+  keyword     String?
+  postUrl     String?
+  timestamp   DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([platform])
+  @@index([keyword])
+  @@index([timestamp])
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  type      String   // 'verify' or 'change'
+  newEmail  String?  // For email change verification
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@index([email])
+  @@index([token])
+}
+
+model ScrapingLog {
+  id         String   @id @default(cuid())
+  platform   String
+  status     String
+  postsFound Int
+  errors     String?
+  timestamp  DateTime @default(now())
+}
