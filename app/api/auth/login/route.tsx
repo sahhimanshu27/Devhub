@@ -6,7 +6,13 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const req = await request.formData();
+    const emailEntry = req.get("email");
+    const passwordEntry = req.get("password");
+    const password = typeof passwordEntry === "string" ? passwordEntry : "";
+    const email = typeof emailEntry === "string" ? emailEntry : "";
+
+    console.log("Login attempt:", { email, password });
 
     // Find user
     const user = await prisma.user.findUnique({ where: { email } });
@@ -26,16 +32,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check email verification
-    if (!user.emailVerified) {
-      return NextResponse.json(
-        {
-          error: "Please verify your email before logging in",
-          needsVerification: true,
-        },
-        { status: 403 }
-      );
-    }
+    // // Check email verification
+    // if (!user.emailVerified) {
+    //   return NextResponse.json(
+    //     {
+    //       error: "Please verify your email before logging in",
+    //       needsVerification: true,
+    //     },
+    //     { status: 403 }
+    //   );
+    // }
 
     // Create session
     const token = await createSession(user.id);
